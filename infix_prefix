@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX 100
+
+char stack[MAX];
+int top = -1;
+
+int isEmpty() { return top == -1; }
+void push(char c) { stack[++top] = c; }
+char pop() { return stack[top--]; }
+char peek() { return stack[top]; }
+
+int precedence(char c) {
+    if (c == '+' || c == '-') return 1;
+    if (c == '*' || c == '/') return 2;
+    if (c == '^') return 3;
+    return 0;
+}
+
+// Reverse string and swap brackets
+void reverse(char s[]) {
+    int n = strlen(s);
+
+    // Reverse the string
+    for (int i = 0; i < n / 2; i++) {
+        char temp = s[i];
+        s[i] = s[n - i - 1];
+        s[n - i - 1] = temp;
+    }
+
+    // Swap brackets
+    for (int i = 0; i < n; i++) {
+        if (s[i] == '(') s[i] = ')';
+        else if (s[i] == ')') s[i] = '(';
+    }
+}
+
+// Convert infix → postfix (helper)
+void infixToPostfix(char infix[], char postfix[]) {
+    int k = 0;
+
+    for (int i = 0; infix[i]; i++) {
+        char c = infix[i];
+
+        if (isalnum(c)) {
+            postfix[k++] = c;
+        }
+        else if (c == '(') {
+            push(c);
+        }
+        else if (c == ')') {
+            while (!isEmpty() && peek() != '(')
+                postfix[k++] = pop();
+            pop();
+        }
+        else {
+            while (!isEmpty() && precedence(peek()) >= precedence(c))
+                postfix[k++] = pop();
+            push(c);
+        }
+    }
+
+    while (!isEmpty())
+        postfix[k++] = pop();
+
+    postfix[k] = '\0';
+}
+
+// Convert infix → prefix
+void infixToPrefix(char infix[]) {
+    char postfix[MAX], prefix[MAX];
+
+    reverse(infix);                // Step 1
+    infixToPostfix(infix, postfix); // Step 2
+
+    strcpy(prefix, postfix);
+    reverse(prefix);               // Step 3
+
+    printf("Prefix Expression: %s\n", prefix);
+}
+
+int main() {
+    char infix[MAX];
+
+    printf("Enter Infix Expression: ");
+    scanf("%s", infix);
+
+    infixToPrefix(infix);
+    return 0;
+}
