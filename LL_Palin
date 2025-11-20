@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+Node* insertEnd(Node *head, int x) {
+    Node *n = malloc(sizeof(Node));
+    n->data = x;
+    n->next = NULL;
+    if (!head) return n;
+    Node *t = head;
+    while (t->next) t = t->next;
+    t->next = n;
+    return head;
+}
+
+Node* reverse(Node *head) {
+    Node *prev = NULL, *curr = head, *next;
+    while (curr) {
+        next = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+    }
+    return prev;
+}
+
+int isPalindrome(Node *head) {
+    if (!head || !head->next) return 1;
+    Node *slow = head, *fast = head;
+    while (fast->next && fast->next->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    Node *second = reverse(slow->next);
+    Node *p1 = head, *p2 = second;
+    while (p2) {
+        if (p1->data != p2->data) return 0;
+        p1 = p1->next;
+        p2 = p2->next;
+    }
+    return 1;
+}
+
+int main() {
+    Node *head = NULL;
+    int x;
+    while (1) {
+        scanf("%d", &x);
+        if (x == -1) break;
+        head = insertEnd(head, x);
+    }
+    printf("%d\n", isPalindrome(head));
+    return 0;
+}
