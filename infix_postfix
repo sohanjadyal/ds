@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+
+#define MAX 100
+
+typedef struct {
+    int top;
+    char arr[MAX];
+} Stack;
+
+void push(Stack *s, char c) {
+    s->arr[++s->top] = c;
+}
+
+char pop(Stack *s) {
+    return s->arr[s->top--];
+}
+
+char peek(Stack *s) {
+    return s->arr[s->top];
+}
+
+int precedence(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    if (op == '^') return 3;
+    return 0;
+}
+
+void infixToPostfix(char infix[]) {
+    Stack s;
+    s.top = -1;
+
+    char post[MAX];
+    int k = 0;
+
+    for (int i = 0; infix[i] != '\0'; i++) {
+
+        char c = infix[i];
+
+        if (isalnum(c)) {
+            post[k++] = c;
+        }
+
+
+        else if (c == '(') {
+            push(&s, c);
+        }
+
+        else if (c == ')') {
+            while (s.top != -1 && peek(&s) != '(') {
+                post[k++] = pop(&s);
+            }
+            pop(&s); // remove '('
+        }
+
+        else {
+            while (s.top != -1 && precedence(peek(&s)) >= precedence(c)) {
+                post[k++] = pop(&s);
+            }
+            push(&s, c);
+        }
+    }
+
+    while (s.top != -1) {
+        post[k++] = pop(&s);
+    }
+
+    post[k] = '\0';
+    printf("Postfix: %s\n", post);
+}
+
+int main() {
+    char infix[MAX];
+
+    printf("Enter infix: ");
+    scanf("%s", infix);
+
+    infixToPostfix(infix);
+
+    return 0;
+}
